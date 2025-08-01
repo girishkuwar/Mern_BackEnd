@@ -19,7 +19,7 @@ router.get('/stats', async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalUploads = await ExcelsData.countDocuments();
-    const activeUsers = await User.countDocuments({ isActive: true }); // optional field
+    const activeUsers = await User.countDocuments({ status: "active" }); // optional field
     res.json({ totalUsers, activeUsers , totalUploads });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });

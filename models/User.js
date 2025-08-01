@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
     enum: ["user", "admin"],
     default: "user",
   },
+  status : {
+    type:String,
+    enum : ['active','inactive'],
+    default: "inactive"
+  },
   canCreateAdmin: { type: Boolean, default: false },
 });
 
