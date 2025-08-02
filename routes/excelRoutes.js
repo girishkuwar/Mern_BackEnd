@@ -12,6 +12,12 @@ router.post("/save", authenticateUser, async (req, res) => {
     if (!data) {
       return res.status(400).json({ message: "Excel data is required" });
     }
+    const existing = await ExcelData.findOne({ user: userID, fileName: name });
+    if (existing) {
+      return res
+        .status(409)
+        .json({ message: "This file has already been uploaded" });
+    }
 
     const newEntry = new ExcelData({
       user: userID,
@@ -21,7 +27,9 @@ router.post("/save", authenticateUser, async (req, res) => {
     });
 
     await newEntry.save();
-    res.status(201).json({ message: "Data saved successfully" });
+    res
+      .status(201)
+      .json({ message: "Data saved successfully", id: newEntry._id });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -43,11 +51,15 @@ router.get("/getsheets", authenticateUser, async (req, res) => {
 
 router.get("/:id", authenticateUser, async (req, res) => {
   try {
-    const upload = await ExcelData.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
 
+    const upload = await ExcelData.findById(req.params.id);
     if (!upload) {
       return res.status(404).json({ message: "Upload not found" });
     }
+
     if (upload.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Access denied" });
     }
@@ -55,11 +67,11 @@ router.get("/:id", authenticateUser, async (req, res) => {
     res.json({
       data: upload.data,
       name: upload.fileName,
-      createdAt: upload.createdAt
+      createdAt: upload.createdAt,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
