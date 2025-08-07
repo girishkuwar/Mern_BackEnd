@@ -8,8 +8,8 @@ const ExcelsData = require('../models/ExcelData');
 // ✅ 1. Get all upload history
 router.get("/uploads", auth, adminOnly, async (req, res) => {
   try {
-    const uploads = await Upload.find()
-      .populate("uploadedBy", "username email")
+    const uploads = await ExcelsData.find()
+      .populate("user", "username email")
       .sort({ uploadedAt: -1 });
     res.json(uploads);
   } catch (err) {
